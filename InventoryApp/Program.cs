@@ -1,4 +1,6 @@
 using InventoryApp.Models;
+using InventoryApp.Services.Interfaces;
+using InventoryApp.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddDbContext<StockDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TRNG5002Connection")));
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
