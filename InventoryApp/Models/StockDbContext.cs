@@ -59,7 +59,7 @@ namespace InventoryApp.Models
                 modelBuilder.Entity<Stock>().HasData(new Stock { Actualprice = 100, Category = "Tech", CurrentPrice = 150, StockId = 1, StockName = "Apple Inc." });
                 modelBuilder.Entity<Stock>().HasData(new Stock { Actualprice = 200, Category = "Tech", CurrentPrice = 250, StockId = 2, StockName = "Microsoft Corporation" });
                 modelBuilder.Entity<Stock>().HasData(new Stock { Actualprice = 300, Category = "Tech", CurrentPrice = 350, StockId = 3, StockName = "Amazon.com Inc." });
-                
+                modelBuilder.Entity<Transaction>().HasData(new Transaction { PriceAtTransaction = 150, Quantity = 10, StockId = 1, UserId = 1, TransactionId = 1, BuyDate = DateTime.UtcNow });
 
             });
 
