@@ -1,6 +1,5 @@
 ﻿using InventoryApp.Dto;
-using InventoryApp.Models;
-using Microsoft.AspNetCore.Http;
+using InventoryApp.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryApp.Controllers
@@ -9,82 +8,36 @@ namespace InventoryApp.Controllers
     [ApiController]
     public class TransactionsController : ControllerBase
     {
-        private readonly StockDbContext _context;
+        private readonly ITransactionsService _transactionsService;
 
-        public TransactionsController(StockDbContext context)
+        public TransactionsController(ITransactionsService transactionsService)
         {
-            _context = context;
+            _transactionsService = transactionsService;
         }
 
         [HttpPost("buy")]
-        public IActionResult BuyStock(BuyTransactionDto buy1)
+        public async Task<IActionResult> BuyStock(BuyTransactionDto buy1)
         {
-            var user = _context.Users.FirstOrDefault(u => u.UserId == buy1.UserId);
-            var stock = _context.Stocks.FirstOrDefault(s => s.StockId == buy1.StockId);
-            if (user == null || stock == null)
-            {
+            var transaction = await _transactionsService.BuyStockAsync(buy1);
+            if (transaction == null)
                 return NotFound("User or Stock not found");
-            }
-
-            var transaction = new Transaction
-            {
-                UserId = user.UserId,
-                StockId = stock.StockId,
-                BuyDate = DateTime.UtcNow,
-                Quantity = buy1.Quantity,
-                PriceAtTransaction = stock.CurrentPrice,
-            };
-
-            user.Balance -= transaction.Quantity * transaction.PriceAtTransaction;
-            _context.Transactions.Add(transaction);
-            _context.SaveChanges();
             return Ok(transaction);
         }
 
         [HttpPost("sell")]
-        public IActionResult SellStock(SellTransactionDto sell1)
+        public async Task<IActionResult> SellStock(SellTransactionDto sell1)
         {
-            var transaction = _context.Transactions.FirstOrDefault(u => u.TransactionId == sell1.TransactionId);
-
+            var transaction = await _transactionsService.SellStockAsync(sell1);
             if (transaction == null)
-            {
                 return NotFound("Transaction not found");
-            }
-
-            transaction.SellDate = DateTime.UtcNow;
-            transaction.User.Balance += transaction.Quantity * transaction.Stock.CurrentPrice;
-
-            _context.SaveChanges();
             return Ok(transaction);
         }
 
         [HttpGet("user/{id}")]
-        public IActionResult GetUserTransaction(int id)
+        public async Task<IActionResult> GetUserTransaction(int id)
         {
-            var transactions = _context.Transactions
-                .Where(t => t.UserId == id)
-                .Select(t => new TransactionDto
-                {
-                    TransactionId = t.TransactionId,
-                    StockId= t.StockId,
-                    BuyDate = t.BuyDate,
-                    SellDate = t.SellDate,
-                    Quantity = t.Quantity,
-                    PriceAtTransaction = t.PriceAtTransaction
-                }).ToList();
+            var transactions = await _transactionsService.GetUserTransactionsAsync(id);
             return Ok(transactions);
-        }
-
-        public class BuyTransactionDto
-        {
-            public int UserId { get; set; }
-            public int StockId { get; set; }
-            public decimal Quantity { get; set; }
-        }
-
-        public class SellTransactionDto : BuyTransactionDto
-        {
-            public int TransactionId { get; set; }
         }
     }
 }
