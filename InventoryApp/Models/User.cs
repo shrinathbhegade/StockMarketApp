@@ -12,6 +12,8 @@
 
         public decimal Balance {  get; set; }
 
+        public string Role { get; set; } = "Admin";
+
         public ICollection<Transaction> Transactions { get; set; }
     }
 }
