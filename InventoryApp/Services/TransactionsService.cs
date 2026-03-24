@@ -67,15 +67,5 @@ namespace InventoryApp.Services
                     PriceAtTransaction = t.PriceAtTransaction
                 }).ToListAsync();
         }
-
-        Task<System.Transactions.Transaction?> ITransactionsService.BuyStockAsync(BuyTransactionDto buyDto)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<System.Transactions.Transaction?> ITransactionsService.SellStockAsync(SellTransactionDto sellDto)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

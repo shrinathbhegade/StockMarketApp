@@ -1,6 +1,7 @@
 ﻿using InventoryApp.Dto;
 using InventoryApp.Models;
 using InventoryApp.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InventoryApp.Controllers
@@ -24,6 +25,7 @@ namespace InventoryApp.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<Stock>> GetStock(int id)
         {
             var stock = await _stockService.GetStockByIdAsync(id);
@@ -32,6 +34,7 @@ namespace InventoryApp.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Stock>> PostStock(StockDto stockDto)
         {
             var stock = await _stockService.CreateStockAsync(stockDto);
@@ -39,6 +42,7 @@ namespace InventoryApp.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutStock(int id, StockDto stockDto)
         {
             var updated = await _stockService.UpdateStockAsync(id, stockDto);
@@ -47,6 +51,7 @@ namespace InventoryApp.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteStock(int id)
         {
             var deleted = await _stockService.DeleteStockAsync(id);
