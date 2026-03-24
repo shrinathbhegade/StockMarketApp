@@ -24,8 +24,8 @@ namespace InventoryApp.Services
 
         public async Task<Transaction?> BuyStockAsync(BuyTransactionDto buyDto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.UserId == buyDto.UserId);
-            var stock = await _context.Stocks.FirstOrDefaultAsync(s => s.StockId == buyDto.StockId);
+            var user = await _userRepo.GetByIdAsync(buyDto.UserId); //_context.Users.FirstOrDefaultAsync(u => u.UserId == buyDto.UserId);
+            var stock = await _stockRepo.GetByIdAsync(buyDto.StockId); //_context.Stocks.FirstOrDefaultAsync(s => s.StockId == buyDto.StockId);
             if (user == null || stock == null)
                 return null;
 
@@ -39,41 +39,41 @@ namespace InventoryApp.Services
             };
 
             user.Balance -= transaction.Quantity * transaction.PriceAtTransaction;
-            _context.Transactions.Add(transaction);
-            await _context.SaveChangesAsync();
+            await _transactionRepo.AddAsync(transaction);
             return transaction;
         }
 
         public async Task<Transaction?> SellStockAsync(SellTransactionDto sellDto)
         {
-            var transaction = await _context.Transactions
-                .Include(t => t.User)
-                .Include(t => t.Stock)
-                .FirstOrDefaultAsync(t => t.TransactionId == sellDto.TransactionId);
+            var transaction = await _transactionRepo.GetByIdAsync(sellDto.TransactionId);
 
             if (transaction == null)
                 return null;
 
             transaction.SellDate = DateTime.UtcNow;
-            transaction.User.Balance += transaction.Quantity * transaction.Stock.CurrentPrice;
+            var user = await _userRepo.GetByIdAsync(transaction.UserId);
+            if (user != null)
+            {
+                user.Balance += transaction.Quantity * transaction.Stock.CurrentPrice;
+                await _userRepo.UpdateAsync(user);
+            }
 
-            await _context.SaveChangesAsync();
+            await _transactionRepo.UpdateAsync(transaction);
             return transaction;
         }
 
         public async Task<IEnumerable<TransactionDto>> GetUserTransactionsAsync(int userId)
         {
-            return await _context.Transactions
-                .Where(t => t.UserId == userId)
-                .Select(t => new TransactionDto
-                {
-                    TransactionId = t.TransactionId,
-                    StockId = t.StockId,
-                    BuyDate = t.BuyDate,
-                    SellDate = t.SellDate,
-                    Quantity = t.Quantity,
-                    PriceAtTransaction = t.PriceAtTransaction
-                }).ToListAsync();
+            var transactions = await _transactionRepo.GetByUserIdAsync(userId);
+            return transactions.Select(t => new TransactionDto
+            {
+                TransactionId = t.TransactionId,
+                StockId = t.StockId,
+                BuyDate = t.BuyDate,
+                SellDate = t.SellDate,
+                Quantity = t.Quantity,
+                PriceAtTransaction = t.PriceAtTransaction
+            });
         }
     }
 }

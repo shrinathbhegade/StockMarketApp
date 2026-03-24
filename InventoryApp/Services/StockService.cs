@@ -1,66 +1,40 @@
-﻿using InventoryApp.Dto;
-using InventoryApp.Models;
+﻿using InventoryApp.Models;
+using InventoryApp.Repositories.Interfaces;
 using InventoryApp.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace InventoryApp.Services
 {
     public class StockService : IStockService
     {
-        private readonly StockDbContext _context;
+        private readonly IStockRepository _stockRepository;
 
-        public StockService(StockDbContext context)
+        public StockService(IStockRepository stockRepository)
         {
-            _context = context;
+            _stockRepository = stockRepository;
         }
 
-        public async Task<IEnumerable<Stock>> GetStocksAsync()
+        public async Task<IEnumerable<Stock>> GetAllAsync()
         {
-            return await _context.Stocks.ToListAsync();
+            return await _stockRepository.GetAllAsync();
         }
 
-        public async Task<Stock?> GetStockByIdAsync(int id)
+        public async Task<Stock> GetByIdAsync(int id)
         {
-            return await _context.Stocks.FindAsync(id);
+            return await _stockRepository.GetByIdAsync(id);
         }
 
-        public async Task<Stock> CreateStockAsync(StockDto stockDto)
+        public async Task AddAsync(Stock stock)
         {
-            var stock = new Stock
-            {
-                StockName = stockDto.Name,
-                Category = stockDto.Category,
-                CurrentPrice = stockDto.CurrentPrice,
-                Actualprice = stockDto.ActualPrice
-            };
-            _context.Stocks.Add(stock);
-            await _context.SaveChangesAsync();
-            return stock;
+            await _stockRepository.AddAsync(stock);
         }
 
-        public async Task<bool> UpdateStockAsync(int id, StockDto stockDto)
+        public async Task UpdateAsync(Stock stock)
         {
-            var stock = await _context.Stocks.FindAsync(id);
-            if (stock == null) return false;
-
-            stock.StockName = stockDto.Name;
-            stock.Category = stockDto.Category;
-            stock.CurrentPrice = stockDto.CurrentPrice;
-            stock.Actualprice = stockDto.ActualPrice;
-
-            _context.Entry(stock).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return true;
+            await _stockRepository.UpdateAsync(stock);
         }
 
-        public async Task<bool> DeleteStockAsync(int id)
+        public async Task DeleteAsync(int id)
         {
-            var stock = await _context.Stocks.FindAsync(id);
-            if (stock == null) return false;
-
-            _context.Stocks.Remove(stock);
-            await _context.SaveChangesAsync();
-            return true;
+            await _stockRepository.DeleteAsync(id);
         }
     }
-}

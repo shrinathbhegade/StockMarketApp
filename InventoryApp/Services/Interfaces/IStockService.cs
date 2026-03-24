@@ -1,14 +1,13 @@
-﻿using InventoryApp.Dto;
-using InventoryApp.Models;
+﻿using InventoryApp.Models;
 
 namespace InventoryApp.Services.Interfaces
 {
     public interface IStockService
     {
-        Task<IEnumerable<Stock>> GetStocksAsync();
-        Task<Stock?> GetStockByIdAsync(int id);
-        Task<Stock> CreateStockAsync(StockDto stockDto);
-        Task<bool> UpdateStockAsync(int id, StockDto stockDto);
-        Task<bool> DeleteStockAsync(int id);
+        Task<IEnumerable<Stock>> GetAllAsync();
+        Task<Stock> GetByIdAsync(int id);
+        Task AddAsync(Stock stock);
+        Task UpdateAsync(Stock stock);
+        Task DeleteAsync(int id);
     }
 }
