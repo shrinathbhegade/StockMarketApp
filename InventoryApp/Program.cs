@@ -1,6 +1,6 @@
 using InventoryApp.Models;
-using InventoryApp.Services.Interfaces;
-using InventoryApp.Services;
+using InventoryApp.Repositories;
+using InventoryApp.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -61,7 +61,9 @@ builder.Services.AddControllers()
 
 builder.Services.AddDbContext<StockDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TRNG5002Connection")));
-builder.Services.AddScoped<IStockService, StockService>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IStockRepository, StockRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

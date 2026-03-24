@@ -1,5 +1,6 @@
 ﻿using InventoryApp.Dto;
 using InventoryApp.Models;
+using InventoryApp.Repositories.Interfaces;
 using InventoryApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,11 +8,18 @@ namespace InventoryApp.Services
 {
     public class TransactionsService : ITransactionsService
     {
-        private readonly StockDbContext _context;
+        private readonly IUserRepository _userRepo;
+        private readonly IStockRepository _stockRepo;
+        private readonly ITransactionRepository _transactionRepo;
 
-        public TransactionsService(StockDbContext context)
+        public TransactionsService(
+            IUserRepository userRepo,
+            IStockRepository stockRepo,
+            ITransactionRepository transactionRepo)
         {
-            _context = context;
+            _userRepo = userRepo;
+            _stockRepo = stockRepo;
+            _transactionRepo = transactionRepo;
         }
 
         public async Task<Transaction?> BuyStockAsync(BuyTransactionDto buyDto)
